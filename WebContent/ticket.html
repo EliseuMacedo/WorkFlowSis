@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="ticketModule">
+
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+<title>Sistema Ticket OS</title>
+
+<!-- Bootstrap -->
+<link href="css/bootstrap.min.css" rel="stylesheet">
+<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+<script src="js/jquery-1.11.3.min.js"></script>
+<script src="js/bootstrap.min.js"></script>
+
+<script src="js/angular.min.js"></script>
+<script src="js/angular-resource.js"></script>
+
+<script src="controll/ticketControl.js"></script>
+<link rel="icon" type="image/ico" href="img/monitor.jpg">
+
+</head>
+<body ng-controller="ticketControl">
+
+	<div ng-include="'menu.html'"></div>
+
+	<div class="panel panel-default">
+		<div class="panel-heading">Caixa de entrada</div>
+		<div class="panel-body">
+
+			<div>
+				<table class="table table-condensed table-striped table-hover">
+					<th>OS Ticket</th>
+					<th>OS Externa</th>
+					<th>Data</th>
+					<th>Cliente</th>
+					<th>Assunto</th>
+					<th>Prioridade</th>
+					<th>Status</th>
+
+
+					<tr class="success"
+						ng-repeat="ticketTabela in tickets | limitTo:limite| filter:criterio"
+						ng-click="selecionaTicket(ticketTabela);">
+						<td>{{ticketTabela.codTicket}}</td>
+						<td>{{ticketTabela.osBeany}}</td>
+						<td>{{ticketTabela.dataAbertura | date:'dd-MM-yyyy
+							HH:mm:ss'}}</td>
+						<td>{{ticketTabela.nomeResponsavel}}</td>
+						<td>{{ticketTabela.assunto}}</td>
+						<td>{{ticketTabela.prioridade}}</td>
+						<td>{{ticketTabela.status}}</td>
+					</tr>
+				</table>
+
+				<!-- Tab panes -->
+				<div class="tab-content">
+					<div class="tab-pane active espaco_entre_botoes">
+
+
+						<form class="form-horizontal" name="ticketForm" class="css-form" ng-submit="departamentoForm.$valid && salvar()" novalidate>
+						
+							<span ng-repeat="mensagem in mensagens">{{mensagem}}<br></span>
+							
+							<div ng-show="ticketForm.$submitted">
+	 							<div ng-show="ticketForm.nome.$error.required">Preencha o nome</div>
+	 							<div ng-show="ticketForm.nome.$error.minlength">Nome precisa ter pelo menos 10 caracteres</div>
+	 							<div ng-show="ticketForm.email.$error.required">Preencha o email</div>
+	 							<div ng-show="ticketForm.email.$error.minlength">Email precisa ter pelo menos 10 caracteres</div>
+	 							<div ng-show="ticketForm.assunto.$error.required">Preencha o assunto</div>
+	 							<div ng-show="ticketForm.assunto.$error.minlength">Assunto precisa ter pelo menos 5 caracteres</div>
+	 							<div ng-show="ticketForm.descricao.$error.required">Preencha a descrição</div>
+	 							<div ng-show="ticketForm.descricao.$error.minlength">Descrição precisa ter pelo menos 15 caracteres</div>
+							</div>
+							<div class="form-group espaco_entre_botoes">
+								<div class="col-sm-8">
+									<button type="submit" ng-click="novo();"
+										class="btn btn-primary ">Novo</button>
+									<button type="submit" ng-click="salvar();"
+										class="btn btn-success">Salvar</button>
+								</div>
+
+								<label for="exampleInputItem" class="col-sm-2 control-label">Visualizando 1-{{limite}} de {{total}} </label>
+								<label for="exampleInputItem" class="col-sm-1 control-label">Ver mais</label>
+
+								<div class="col-sm-1">
+									<select class="form-control" ng-selected="carregaMais();"
+										ng-model="valor">
+										<option value="5">5</option>
+										<option value="10">10</option>
+										<option value="15">15</option>
+										<option value="25">25</option>
+										<option value="50">50</option>
+										<option value="100">100</option>
+										<option value="150">150</option>
+									</select>
+								</div>
+
+							</div>
+
+
+							<div class="form-group espaco_entre_botoes has-success">
+								<label for="exampleInputcodigo" class="col-sm-1 control-label">Nº
+									Ticket</label>
+								<div class="col-sm-2">
+									<input type="text" class="form-control"
+										ng-model="ticket.codTicket" disabled="true">
+								</div>
+								<label for="exampleInputnome" class="col-sm-1 control-label">Cliente</label>
+								<div class="col-sm-5">
+								
+								<input type="text" class="form-control" name="nome" ng-model="ticket.nomeResponsavel" placeholder="Nome" required=""ng-minlength="10"/>
+								</div>
+
+								<label for="exampleInputDataAbertura"
+									class="col-sm-1 control-label">Data Inicio</label>
+								<div class="col-sm-2">
+									<input type="text" class="form-control"
+										ng-model="ticket.dataAbertura | date:'dd-MM-yyyy HH:mm:ss'"
+										disabled="true">
+								</div>
+
+							</div>
+
+							<div class="form-group espaco_entre_botoes has-success">
+								<label for="exampleInputOsBeany" class="col-sm-1 control-label">OS
+									externa</label>
+								<div class="col-sm-2">
+									<input type="number" class="form-control"
+										ng-model="ticket.osBeany">
+								</div>
+
+								<label for="exampleInputEmail" class="col-sm-1 control-label">Email</label>
+								<div class="col-sm-5">
+								<input type="text" class="form-control" name="email" ng-model="ticket.email" placeholder="Nome" required=""ng-minlength="10"/>
+								</div>
+
+								<label for="exampleInputDataFechamento"
+									class="col-sm-1 control-label">Data Fim</label>
+								<div class="col-sm-2">
+									<input type="text" class="form-control"
+										ng-model="ticket.dataFechamento | date:'dd-MM-yyyy HH:mm:ss'"
+										disabled="true">
+								</div>
+							</div>
+
+							<div class="form-group espaco_entre_botoes has-success">
+
+								<label for="exampleInputStatus" class="col-sm-1 control-label">Status</label>
+								<div class="col-sm-2">
+									<select class="form-control" ng-model="ticket.status" />
+									<option value="ABERTO">Aberto</option>
+									<option value="FECHADO">Fechado</option>
+									</select>
+								</div>
+
+								<label for="exampleInputSituacao" class="col-sm-1 control-label">Situação</label>
+								<div class="col-sm-2">
+									<select class="form-control" ng-model="ticket.situacao" />
+									<option value="AGUARDANDO">Aguardando Informações</option>
+									<option value="PROCESSAMENTO">Em processamento</option>
+									</select>
+								</div>
+
+								<label for="exampleInputPrioridade"
+									class="col-sm-1 control-label">Prioridade</label>
+								<div class="col-sm-2">
+									<select class="form-control" ng-model="ticket.prioridade">
+										<option value="URGENTE">Urgente</option>
+										<option value="ALTA">Alta</option>
+										<option value="MEDIA">Media</option>
+										<option value="BAIXA">Baixa</option>
+									</select>
+								</div>
+
+								<label for="exampleInput" class="col-sm-1 control-label">Tecnico</label>
+								<div class="col-sm-2">
+									<select class="form-control" ng-model="ticket.tecnico"
+										ng-options="tecnico.nome for tecnico in tecnicos track by tecnico.codTecnico">
+									</select>
+								</div>
+							</div>
+
+							<div class="form-group espaco_entre_botoes has-success">
+								<label for="exampleInputAssunto" class="col-sm-1 control-label">Assunto</label>
+								<div class="col-sm-11">
+									<input type="text" class="form-control" name="assunto" ng-model="ticket.assunto" placeholder="assunto" required=""ng-minlength="5"/>
+								</div>
+							</div>
+							<div class="form-group espaco_entre_botoes has-success">
+								<label for="exampleInputDescricao"
+									class="col-sm-1 control-label">Descrição</label>
+								<div class="col-sm-11">
+									<textarea class="form-control" rows="3"
+										name="descricao" ng-model="ticket.descricao" placeholder="descricao" required=""ng-minlength="15"></textarea>
+								</div>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+</body>
+</html>
+
+
